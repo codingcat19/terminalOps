@@ -13,6 +13,7 @@ from terminalops.config import DEFAULT_MODEL_HOST, DEFAULT_MODEL_ID
 from terminalops.tools import (
     describe_tools,
     get_docker_containers_text,
+    get_docker_images_text,
     get_git_status_text,
     get_system_resources_text,
     get_system_time_text,
@@ -60,6 +61,7 @@ class TerminalOpsCLI:
         self.output_func("Available commands:")
         self.output_func("  /help   Show CLI commands")
         self.output_func("  /tools  Show built-in tools")
+        self.output_func("  /docker Show Docker containers and images")
         self.output_func("  /clear  Reset the current session memory")
         self.output_func("  /status Show model and tool status")
         self.output_func("  /exit   Exit TerminalOps")
@@ -89,6 +91,9 @@ class TerminalOpsCLI:
             return True
         if command == "/status":
             self.print_status()
+            return True
+        if command == "/docker":
+            self.print_docker_status()
             return True
         if command == "/exit":
             self.output_func("Bye.")
@@ -135,11 +140,24 @@ class TerminalOpsCLI:
             self.last_direct_intent = "docker"
             return True
 
+        if "docker images" in normalized or "list images" in normalized:
+            self.output_func(get_docker_images_text())
+            self.last_direct_intent = "docker"
+            return True
+
         return False
 
     def print_resources(self) -> None:
         self.output_func(get_system_resources_text())
         self.last_direct_intent = "resources"
+
+    def print_docker_status(self) -> None:
+        self.output_func("Docker Containers:")
+        self.output_func(get_docker_containers_text())
+        self.output_func("")
+        self.output_func("Docker Images:")
+        self.output_func(get_docker_images_text())
+        self.last_direct_intent = "docker"
 
     def handle_prompt(self, prompt: str) -> bool:
         if not prompt:

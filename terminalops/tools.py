@@ -74,6 +74,11 @@ def get_docker_containers_text() -> str:
     return _run_command("docker ps")
 
 
+def get_docker_images_text() -> str:
+    """Return available Docker images."""
+    return _run_command("docker images")
+
+
 def _format_bytes(value: int) -> str:
     units = ["B", "KB", "MB", "GB", "TB"]
     size = float(value)
@@ -131,6 +136,24 @@ def build_tools(confirm_callback: ConfirmationCallback | None = None) -> list:
         return _run_command(command)
 
     @tool
+    def list_images() -> str:
+        """Returns available Docker images."""
+        return get_docker_images_text()
+
+    @tool
+    def inspect_container(container_name: str) -> str:
+        """Inspect a Docker container or image."""
+        return _run_command(f"docker inspect {shlex.quote(container_name)}")
+
+    @tool
+    def exec_container(container_name: str, command: str) -> str:
+        """Executes a command inside a running Docker container."""
+        docker_command = f"docker exec {shlex.quote(container_name)} {shlex.quote(command)}"
+        if not should_run(docker_command):
+            return f"Execution inside container was not approved for: {container_name}"
+        return _run_command(docker_command)
+
+    @tool
     def get_git_status() -> str:
         """Returns the current git status including the current branch."""
         return get_git_status_text()
@@ -151,6 +174,9 @@ def build_tools(confirm_callback: ConfirmationCallback | None = None) -> list:
         get_container_logs,
         run_container,
         stop_container,
+        list_images,
+        inspect_container,
+        exec_container,
         get_git_status,
         get_system_time,
         check_system_resources,

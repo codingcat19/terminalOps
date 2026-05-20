@@ -95,6 +95,41 @@ class TerminalOpsCLITests(unittest.TestCase):
 
         self.assertEqual(outputs.count("RAM Usage: 20%"), 2)
 
+    def test_docker_command_shows_containers_and_images(self):
+        outputs = []
+        fake_agent = FakeAgent()
+
+        with patch("terminalops.cli.create_terminalops_agent", return_value=(fake_agent, [])):
+            cli = TerminalOpsCLI(
+                input_func=lambda prompt: "",
+                output_func=outputs.append,
+            )
+
+        with patch("terminalops.cli.get_docker_containers_text", return_value="CONTAINERS"):
+            with patch("terminalops.cli.get_docker_images_text", return_value="IMAGES"):
+                cli.handle_command("/docker")
+
+        self.assertIn("Docker Containers:", outputs)
+        self.assertIn("CONTAINERS", outputs)
+        self.assertIn("Docker Images:", outputs)
+        self.assertIn("IMAGES", outputs)
+
+    def test_docker_images_direct_request_is_handled(self):
+        outputs = []
+        fake_agent = FakeAgent()
+
+        with patch("terminalops.cli.create_terminalops_agent", return_value=(fake_agent, [])):
+            cli = TerminalOpsCLI(
+                input_func=lambda prompt: "",
+                output_func=outputs.append,
+            )
+
+        with patch("terminalops.cli.get_docker_images_text", return_value="IMAGES"):
+            cli.handle_command("show docker images")
+
+        self.assertEqual(fake_agent.prompts, [])
+        self.assertIn("IMAGES", outputs)
+
     def test_main_returns_error_when_dependencies_are_missing(self):
         with patch(
             "terminalops.cli.TerminalOpsCLI",

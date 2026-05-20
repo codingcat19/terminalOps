@@ -41,6 +41,16 @@ class ToolTests(unittest.TestCase):
         self.assertIn("RAM Usage: 40%", result)
         self.assertIn("Disk Usage: 55%", result)
 
+    def test_docker_images_tool_runs(self):
+        tools = build_tools(confirm_callback=lambda command: False)
+        list_images = next(tool for tool in tools if tool.__name__ == "list_images")
+
+        with patch("terminalops.tools._run_command", return_value="IMAGE LIST") as run_command:
+            result = list_images()
+
+        self.assertEqual(result, "IMAGE LIST")
+        run_command.assert_called_once_with("docker images")
+
 
 if __name__ == "__main__":
     unittest.main()
