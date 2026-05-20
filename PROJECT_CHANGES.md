@@ -26,6 +26,7 @@ This file tracks meaningful changes made to the `my-agent` project so future wor
 - Verified the current tests with `.venv/bin/python -m unittest discover -s tests -v`.
 - Created a Python 3.12 virtual environment at `.venv312/`, installed dependencies, and verified `terminalops` starts, loads 8 tools, connects to local Ollama, and answers a time prompt through `get_system_time`.
 - Fixed the CLI resource-check flow so prompts like `check system resources` and follow-ups like `Please show it` return concrete local CPU, RAM, and disk usage directly instead of generic Linux command suggestions.
+- Added richer Docker support with a new `/docker` CLI command, Docker image listing, container inspection, and container exec tooling.
 - Suppressed raw Strands tool-trace output for model-handled prompts so the terminal output stays cleaner.
 
 ### Known follow-up
