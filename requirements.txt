@@ -1,0 +1,4 @@
+psutil
+streamlit
+strands-agents[ollama]
+strands-agents-tools
