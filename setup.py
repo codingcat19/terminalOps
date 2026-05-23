@@ -15,5 +15,8 @@ setup(
         "strands-agents[ollama]",
         "strands-agents-tools",
     ],
+    extras_require={
+        "openai": ["strands-agents[openai]"],
+    },
     scripts=["bin/terminalops"],
 )

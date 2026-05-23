@@ -9,7 +9,11 @@ import sys
 from typing import Callable
 
 from terminalops.agent import MissingDependencyError, create_terminalops_agent
-from terminalops.config import DEFAULT_MODEL_HOST, DEFAULT_MODEL_ID
+from terminalops.config import (
+    DEFAULT_MODEL_HOST,
+    DEFAULT_MODEL_ID,
+    get_model_provider,
+)
 from terminalops.tools import (
     describe_tools,
     get_docker_containers_text,
@@ -54,7 +58,10 @@ class TerminalOpsCLI:
 
     def print_banner(self) -> None:
         self.output_func("TerminalOps")
-        self.output_func(f"Model: {DEFAULT_MODEL_ID} via Ollama at {DEFAULT_MODEL_HOST}")
+        self.output_func(
+            f"Model: {DEFAULT_MODEL_ID} via {get_model_provider().title()} "
+            f"at {DEFAULT_MODEL_HOST if get_model_provider() == 'ollama' else 'OpenAI API'}"
+        )
         self.output_func("Type /help for commands.")
 
     def print_help(self) -> None:
