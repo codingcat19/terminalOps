@@ -1,14 +1,28 @@
+# Virtual Environments
 .venv/
 .venv312/
+
+# Python compiled files and caches
 __pycache__/
 *.py[cod]
-*.egg-info/
 .pytest_cache/
-.DS_Store
-build/
-dist/
-.env
-.env.local
 .coverage
 htmlcov/
+
+# Python packaging, builds, and distribution
+*.egg-info/
+build/
+dist/
+
+# Node.js dependencies
 node_modules/
+
+# Environment variables and secrets
+.env
+.env.local
+
+# OS-specific files
+.DS_Store
+
+# IDE and agent metadata
+.kilo/
