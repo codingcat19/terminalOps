@@ -19,6 +19,7 @@ from terminalops.tools import (
     get_docker_containers_text,
     get_docker_images_text,
     get_git_status_text,
+    get_repo_files_text,
     get_system_resources_text,
     get_system_time_text,
 )
@@ -69,6 +70,7 @@ class TerminalOpsCLI:
         self.output_func("  /help   Show CLI commands")
         self.output_func("  /tools  Show built-in tools")
         self.output_func("  /docker Show Docker containers and images")
+        self.output_func("  /files  List repository files")
         self.output_func("  /clear  Reset the current session memory")
         self.output_func("  /status Show model and tool status")
         self.output_func("  /exit   Exit TerminalOps")
@@ -101,6 +103,9 @@ class TerminalOpsCLI:
             return True
         if command == "/docker":
             self.print_docker_status()
+            return True
+        if command == "/files":
+            self.print_repo_files()
             return True
         if command == "/exit":
             self.output_func("Bye.")
@@ -152,6 +157,14 @@ class TerminalOpsCLI:
             self.last_direct_intent = "docker"
             return True
 
+        if "list files" in normalized or "repo files" in normalized or "show files" in normalized:
+            self.print_repo_files()
+            return True
+
+        if "show file" in normalized or "read file" in normalized:
+            self.output_func("Use /files to list files or ask the agent to read a specific file.")
+            return True
+
         return False
 
     def print_resources(self) -> None:
@@ -165,6 +178,11 @@ class TerminalOpsCLI:
         self.output_func("Docker Images:")
         self.output_func(get_docker_images_text())
         self.last_direct_intent = "docker"
+
+    def print_repo_files(self) -> None:
+        self.output_func("Repository files:")
+        self.output_func(get_repo_files_text())
+        self.last_direct_intent = "repo"
 
     def handle_prompt(self, prompt: str) -> bool:
         if not prompt:

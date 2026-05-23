@@ -1,7 +1,9 @@
+import os
+import tempfile
 import unittest
 from unittest.mock import patch
 
-from terminalops.tools import build_tools, get_system_resources_text
+from terminalops.tools import build_tools, get_repo_files_text, get_system_resources_text
 
 
 class ToolTests(unittest.TestCase):
@@ -50,6 +52,23 @@ class ToolTests(unittest.TestCase):
 
         self.assertEqual(result, "IMAGE LIST")
         run_command.assert_called_once_with("docker images")
+
+    def test_get_repo_files_text_returns_files(self):
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            repo_root = tmpdir
+            os.makedirs(os.path.join(repo_root, "sub"), exist_ok=True)
+            with open(os.path.join(repo_root, "README.md"), "w", encoding="utf-8") as handle:
+                handle.write("readme")
+            with open(os.path.join(repo_root, "sub", "cli.py"), "w", encoding="utf-8") as handle:
+                handle.write("print('hello')")
+
+            with patch("terminalops.tools.os.getcwd", return_value=repo_root):
+                result = get_repo_files_text()
+
+        self.assertIn("README.md", result)
+        self.assertIn("sub/cli.py", result)
 
 
 if __name__ == "__main__":

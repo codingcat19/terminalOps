@@ -40,6 +40,82 @@ def _run_command(command: str) -> str:
     return output
 
 
+def list_repo_files(base_path: str = ".", max_depth: int = 4) -> str:
+    """Return a simple file tree for the repository path."""
+    root = os.path.abspath(base_path)
+    if not os.path.isdir(root):
+        return f"Path not found: {base_path}"
+
+    output = []
+    for current_root, dirs, files in os.walk(root):
+        rel_root = os.path.relpath(current_root, root)
+        depth = 0 if rel_root == "." else rel_root.count(os.sep) + 1
+        if depth > max_depth:
+            dirs[:] = []
+            continue
+
+        if ".git" in dirs:
+            dirs.remove(".git")
+
+        for file_name in sorted(files):
+            rel_path = os.path.join(rel_root, file_name) if rel_root != "." else file_name
+            output.append(rel_path)
+
+    return "\n".join(sorted(output)) or "(no files found)"
+
+
+def read_file_text(file_path: str, max_lines: int = 200) -> str:
+    """Return the requested file content with line numbers."""
+    normalized_path = os.path.normpath(os.path.join(os.getcwd(), file_path))
+    if not normalized_path.startswith(os.getcwd()):
+        return "Invalid file path."
+    if not os.path.isfile(normalized_path):
+        return f"File not found: {file_path}"
+
+    try:
+        with open(normalized_path, "r", encoding="utf-8", errors="replace") as handle:
+            lines = handle.readlines()
+    except OSError as exc:
+        return f"Unable to read file: {exc}"
+
+    selected_lines = lines[:max_lines]
+    formatted = [f"{idx + 1}: {line.rstrip()}" for idx, line in enumerate(selected_lines)]
+    if len(lines) > max_lines:
+        formatted.append(f"...truncated after {max_lines} lines")
+    return "\n".join(formatted)
+
+
+def search_code_text(query: str, base_path: str = ".", max_results: int = 50) -> str:
+    """Search source files for a query string."""
+    root = os.path.abspath(base_path)
+    if not os.path.isdir(root):
+        return f"Path not found: {base_path}"
+
+    results = []
+    for current_root, dirs, files in os.walk(root):
+        if ".git" in dirs:
+            dirs.remove(".git")
+
+        for file_name in sorted(files):
+            if not file_name.lower().endswith((
+                ".py", ".md", ".txt", ".yaml", ".yml", ".json", ".sh", ".js", ".ts", ".cfg", ".ini"
+            )):
+                continue
+            file_path = os.path.join(current_root, file_name)
+            try:
+                with open(file_path, "r", encoding="utf-8", errors="ignore") as handle:
+                    for line_number, line in enumerate(handle, start=1):
+                        if query.lower() in line.lower():
+                            rel_path = os.path.relpath(file_path, root)
+                            results.append(f"{rel_path}:{line_number}: {line.strip()}")
+                            if len(results) >= max_results:
+                                return "\n".join(results)
+            except OSError:
+                continue
+
+    return "\n".join(results) if results else f"No matches found for: {query}"
+
+
 def get_system_time_text() -> str:
     """Return the current system date and time."""
     now = datetime.datetime.now()
@@ -67,6 +143,11 @@ def get_system_resources_text() -> str:
 def get_git_status_text() -> str:
     """Return the current git status."""
     return _run_command("git status -s -b")
+
+
+def get_repo_files_text() -> str:
+    """Return a concise listing of repository files."""
+    return list_repo_files()
 
 
 def get_docker_containers_text() -> str:
@@ -159,6 +240,21 @@ def build_tools(confirm_callback: ConfirmationCallback | None = None) -> list:
         return get_git_status_text()
 
     @tool
+    def list_repo_files_tool() -> str:
+        """Lists repository files for the current working directory."""
+        return get_repo_files_text()
+
+    @tool
+    def read_file(file_path: str) -> str:
+        """Returns the content of a file in the repository."""
+        return read_file_text(file_path)
+
+    @tool
+    def search_code(query: str) -> str:
+        """Searches repository files for the given query."""
+        return search_code_text(query)
+
+    @tool
     def get_system_time() -> str:
         """Returns the current system date and time."""
         return get_system_time_text()
@@ -178,6 +274,9 @@ def build_tools(confirm_callback: ConfirmationCallback | None = None) -> list:
         inspect_container,
         exec_container,
         get_git_status,
+        list_repo_files_tool,
+        read_file,
+        search_code,
         get_system_time,
         check_system_resources,
     ]

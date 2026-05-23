@@ -63,6 +63,38 @@ class TerminalOpsCLITests(unittest.TestCase):
         self.assertEqual(fake_agent.prompts, ["check docker status"])
         self.assertIn("handled: check docker status", outputs)
 
+    def test_files_command_lists_repository_files(self):
+        outputs = []
+        fake_agent = FakeAgent()
+
+        with patch("terminalops.cli.create_terminalops_agent", return_value=(fake_agent, [])):
+            cli = TerminalOpsCLI(
+                input_func=lambda prompt: "",
+                output_func=outputs.append,
+            )
+
+        with patch("terminalops.cli.get_repo_files_text", return_value="README.md\nterminalops/cli.py"):
+            cli.handle_command("/files")
+
+        self.assertIn("Repository files:", outputs)
+        self.assertTrue(any("README.md" in line for line in outputs))
+
+    def test_list_repo_files_direct_request(self):
+        outputs = []
+        fake_agent = FakeAgent()
+
+        with patch("terminalops.cli.create_terminalops_agent", return_value=(fake_agent, [])):
+            cli = TerminalOpsCLI(
+                input_func=lambda prompt: "",
+                output_func=outputs.append,
+            )
+
+        with patch("terminalops.cli.get_repo_files_text", return_value="README.md"):
+            cli.handle_command("show repo files")
+
+        self.assertIn("Repository files:", outputs)
+        self.assertIn("README.md", outputs)
+
     def test_system_resources_are_handled_directly(self):
         outputs = []
         fake_agent = FakeAgent()
