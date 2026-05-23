@@ -2,6 +2,21 @@
 
 This file tracks meaningful changes made to the `my-agent` project so future work has a quick memory of what changed and why.
 
+---
+
+## 2026-05-23
+
+### Housekeeping & configuration
+
+- Reorganized and grouped `.gitignore` with section comments for virtual environments, Python caches, packaging artifacts, Node.js, secrets, OS files, and IDE/agent metadata.
+- Removed `.kilo/plans/` folder from Git tracking across all branches (`main`, `feature/claude-code-experience`, `codex/devops-cli-agent`) and added `.kilo/` to `.gitignore` so it is never committed again.
+- Created `.env.example` as a committed template for environment variable configuration (API keys, model provider selection).
+- Created `.env` (gitignored) for local secrets — OpenAI API key and model provider settings.
+- Updated `README.md` to include a Features section, `.env` configuration instructions, Streamlit run instructions, and test command.
+- Updated `PROJECT_CHANGES.md` to reflect all 2026-05-23 changes.
+
+---
+
 ## 2026-05-13
 
 ### Git setup
@@ -32,7 +47,7 @@ This file tracks meaningful changes made to the `my-agent` project so future wor
 - Updated docs to explain OpenAI environment variables and optional install extras.
 - Suppressed raw Strands tool-trace output for model-handled prompts so the terminal output stays cleaner.
 
-### Known follow-up
+### Known follow-up (resolved 2026-05-23)
 
-- The current virtual environment is missing runtime dependencies such as Strands/Ollama tooling, so the live `terminalops` REPL still needs dependency installation before full end-to-end use.
-- Generated install metadata such as `terminalops.egg-info/` should be ignored or cleaned before the first commit.
+- ~~The current virtual environment is missing runtime dependencies~~ — dependencies installed and verified in `.venv312/`.
+- ~~Generated install metadata such as `terminalops.egg-info/` should be ignored~~ — added to `.gitignore`.
